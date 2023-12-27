@@ -1,0 +1,23 @@
+services:
+  web:
+    build:
+      dockerfile: web.Dockerfile
+    environment:
+      - POSTGRES_DSN=${POSTGRES_DSN}
+    ports:
+      - 4000:4000
+    stdin_open: true # required to keep container running (docker run -i)
+    tty: true # required to keep container running (docker run -t)
+    volumes:
+      - .:/app
+  database:
+    build:
+      dockerfile: db.Dockerfile
+    environment:
+      # env doesn't seem to work in Dockerfile
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      # docker runs postgres in trust mode by default, 
+      # which means that anyone logged in to the container
+      # can access postgres
+      - POSTGRES_INITDB_ARGS=--auth=scram-sha-256
+      - USER_WEB_PASSWORD=${USER_WEB_PASSWORD}
